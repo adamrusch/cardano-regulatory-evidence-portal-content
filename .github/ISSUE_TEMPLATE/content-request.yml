@@ -1,0 +1,23 @@
+name: Content request
+description: Something is not covered anywhere and should be
+labels: [content-request]
+body:
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Who needs this
+      options: [regulator or policy staff, builder, DRep or community member, journalist, academic, other]
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: The question that needs answering
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters
+    validations:
+      required: true

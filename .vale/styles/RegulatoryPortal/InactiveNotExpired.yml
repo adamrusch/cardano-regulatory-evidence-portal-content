@@ -1,0 +1,6 @@
+extends: existence
+message: "A DRep that has stopped voting is 'inactive', never 'expired' or 'retired' (retirement is an explicit on-chain certificate act)."
+level: error
+ignorecase: true
+raw:
+  - '\b(expired|retired)\b(?=[^.]{0,60}\bDReps?\b)|\bDReps?\b(?=[^.]{0,60}\b(expired|retires? by inactivity|expires?)\b)'

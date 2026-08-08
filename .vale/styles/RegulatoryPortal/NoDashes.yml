@@ -1,0 +1,6 @@
+extends: existence
+message: "Em and en dashes are not used in portal prose. Use commas, semicolons, colons, or restructure."
+level: error
+nonword: true
+raw:
+  - '[\x{2013}\x{2014}]'

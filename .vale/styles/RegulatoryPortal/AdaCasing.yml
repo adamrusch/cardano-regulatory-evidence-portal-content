@@ -1,0 +1,6 @@
+extends: existence
+message: "Write 'ADA', never '%s'. Fixed casing for the asset name."
+level: error
+ignorecase: false
+raw:
+  - '\b[Aa]da\b(?= (holder|holders|supply|delegation|staked|futures|balance|in|of|to|per|moved|transacted))'

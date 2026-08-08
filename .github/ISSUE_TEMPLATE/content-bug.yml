@@ -1,0 +1,30 @@
+name: Content bug
+description: A page says something wrong
+labels: [content-bug]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page or entry
+      description: URL or file path of the content that is wrong
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: What it should say
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source for the correction
+      description: A citation, link, or on-chain reference that supports the correction
+    validations:
+      required: true

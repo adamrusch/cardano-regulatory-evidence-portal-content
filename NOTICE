@@ -1,0 +1,17 @@
+Cardano Regulatory Evidence Portal content repository
+Copyright 2026 Adam P. Rusch
+
+Licensing in this repository is split by directory:
+
+- Prose content in faq/, docs/, metrics/, and assets/ is licensed under the
+  Creative Commons Attribution 4.0 International license (CC BY 4.0); see
+  LICENSE at the repository root.
+
+- Tooling in schemas/, scripts/, and .github/ is licensed under the Apache
+  License, Version 2.0, to match the portal's source repository
+  (github.com/adamrusch/cardano-regulatory-evidence-portal).
+
+The CC BY 4.0 choice for prose was adopted by operator ruling on
+2026-08-08 and is flagged for ratification by the External Advisory Panel
+once chartered, alongside the other content governance rulings recorded in
+the portal's methodology change log.

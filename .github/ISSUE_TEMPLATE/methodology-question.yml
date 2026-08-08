@@ -1,0 +1,31 @@
+name: Methodology question
+description: A metric methodology could be defined differently
+labels: [methodology]
+body:
+  - type: input
+    id: metric
+    attributes:
+      label: Metric id
+      description: For example, drep-voting-power-concentration
+    validations:
+      required: true
+  - type: textarea
+    id: alternative
+    attributes:
+      label: The alternative definition
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: Why the alternative is defensible; links or citations
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Methodology substance is governed by the portal's methodology process
+        (versioned methodologies, documented operator rulings, and the External
+        Advisory Panel once chartered). This issue will be routed there; the
+        prose in this repository follows the outcome.

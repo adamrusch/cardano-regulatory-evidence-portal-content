@@ -1,0 +1,18 @@
+# Default: every content change is reviewed by the maintainer.
+# The OSO-assigned maintainer is added here once named.
+* @adamrusch
+
+# Methodology-relevant prose. The External Advisory Panel chair is added
+# once the panel is chartered.
+/docs/methodology-changes.md @adamrusch
+/docs/source-disagreements.md @adamrusch
+
+# Statutory and recognition-ledger prose: operator of record plus a legal
+# reviewer (to be named).
+/docs/statutory-frameworks.md @adamrusch
+/docs/recognition-ledger.md @adamrusch
+
+# Tooling.
+/schemas/ @adamrusch
+/scripts/ @adamrusch
+/.github/ @adamrusch

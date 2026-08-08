@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Metric question framing frontmatter",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "question", "last_reviewed"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_-]+$" },
+    "question": { "type": "string", "minLength": 8 },
+    "status": { "enum": ["locked", "draft"], "default": "draft" },
+    "publish": { "type": "boolean", "default": true },
+    "last_reviewed": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+  }
+}

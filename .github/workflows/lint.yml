@@ -1,0 +1,40 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Markdown lint
+        run: npm run lint:md
+
+      - name: Frontmatter validation and bundle dry run
+        run: npm run lint:frontmatter
+
+      - name: Prose style rules (Vale)
+        uses: errata-ai/vale-action@v2
+        with:
+          # STYLEGUIDE.md is excluded: it enumerates the forbidden forms as
+          # examples, which the style rules would flag.
+          files: '["faq", "docs", "metrics", "README.md", "CONTRIBUTING.md", "GOVERNANCE.md"]'
+          fail_on_error: true
+
+      - name: Link check (lychee)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --exclude-path node_modules "faq/**/*.md" "docs/**/*.md" "*.md"
+          fail: true

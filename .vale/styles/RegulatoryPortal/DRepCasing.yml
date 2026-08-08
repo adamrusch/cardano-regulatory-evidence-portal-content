@@ -1,0 +1,6 @@
+extends: existence
+message: "Write 'DRep', never '%s'. Fixed casing per CIP-1694 usage."
+level: error
+ignorecase: false
+raw:
+  - '\b(dRep|Drep|DREP|dREP)s?\b'

@@ -1,0 +1,19 @@
+{
+  "name": "cardano-regulatory-evidence-portal-content",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reader-facing prose for the Cardano Regulatory Evidence Portal; built into content-bundle.json for the site.",
+  "scripts": {
+    "build": "node scripts/build-bundle.mjs",
+    "lint:md": "markdownlint-cli2",
+    "lint:frontmatter": "node scripts/build-bundle.mjs --out /dev/null"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "gray-matter": "^4.0.3",
+    "marked": "^15.0.4",
+    "markdownlint-cli2": "^0.14.0"
+  },
+  "license": "Apache-2.0"
+}

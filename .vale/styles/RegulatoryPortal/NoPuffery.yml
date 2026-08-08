@@ -1,0 +1,14 @@
+extends: existence
+message: "Promotional language ('%s') is not used. State the fact and let the reader conclude."
+level: error
+ignorecase: true
+tokens:
+  - revolutionary
+  - world-class
+  - cutting-edge
+  - best-in-class
+  - unmatched
+  - unparalleled
+  - game-changing
+  - state-of-the-art
+  - industry-leading

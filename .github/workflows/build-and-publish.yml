@@ -1,0 +1,60 @@
+name: Build and publish
+
+# On every merge to main: build content-bundle.json and publish it to the
+# site's content origin, then invalidate the CDN path. The site fetches the
+# bundle at page load, so a merged change is visible within minutes without
+# any site rebuild.
+#
+# Auth is OIDC-federated: the workflow assumes an AWS role scoped to writing
+# the content/ prefix and creating invalidations. No long-lived credentials
+# are stored in this repository. Repository variables required:
+#   AWS_ROLE_ARN         the publish role
+#   CONTENT_BUCKET       the site bucket name
+#   CLOUDFRONT_DIST_ID   the distribution id
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build bundle
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Publish bundle (latest and dated snapshot)
+        run: |
+          STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+          aws s3 cp content-bundle.json "s3://${{ vars.CONTENT_BUCKET }}/content/content-bundle.json" \
+            --cache-control "no-cache" --content-type "application/json"
+          aws s3 cp content-bundle.json "s3://${{ vars.CONTENT_BUCKET }}/content/snapshots/content-bundle-${STAMP}-${GITHUB_SHA::7}.json" \
+            --cache-control "public, max-age=31536000, immutable" --content-type "application/json"
+
+      - name: Invalidate CDN path
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DIST_ID }}" \
+            --paths "/content/content-bundle.json" \
+            --query "Invalidation.Id" --output text

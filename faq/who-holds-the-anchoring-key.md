@@ -4,6 +4,7 @@ question: Who holds the anchoring key?
 audience: [regulator, skeptic]
 category: anchoring
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 

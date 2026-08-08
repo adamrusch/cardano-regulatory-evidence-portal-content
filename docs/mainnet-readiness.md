@@ -5,6 +5,7 @@ category: operations
 audience: [regulator, community]
 summary: "The checklist that gates the start of mainnet anchoring, with the status of every item."
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-09"
 ---
 Starting mainnet anchoring is not reversible. The first submitted anchor begins

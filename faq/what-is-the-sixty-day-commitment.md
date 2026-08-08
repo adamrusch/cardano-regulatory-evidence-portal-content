@@ -4,6 +4,7 @@ question: What is the sixty-day anchored-history commitment?
 audience: [regulator, skeptic]
 category: anchoring
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 

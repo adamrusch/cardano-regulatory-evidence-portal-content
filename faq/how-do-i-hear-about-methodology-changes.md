@@ -4,6 +4,7 @@ question: How do I hear about methodology changes?
 audience: [builder, academic]
 category: consumption
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 

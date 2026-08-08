@@ -4,6 +4,7 @@ question: What does anchoring mean, and why is nothing anchored yet?
 audience: [regulator, academic, skeptic]
 category: anchoring
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 

@@ -4,6 +4,7 @@ question: What sources does the portal use?
 audience: [academic, builder, regulator]
 category: sources
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 

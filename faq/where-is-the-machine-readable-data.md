@@ -4,6 +4,7 @@ question: Where can I get the machine-readable data?
 audience: [builder, academic]
 category: site-tour
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 

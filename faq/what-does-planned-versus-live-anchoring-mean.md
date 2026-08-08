@@ -4,6 +4,7 @@ question: What does the anchoring banner mean by not begun?
 audience: [community, regulator]
 category: anchoring
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 

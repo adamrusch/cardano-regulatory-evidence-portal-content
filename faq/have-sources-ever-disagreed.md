@@ -7,4 +7,4 @@ status: locked
 last_reviewed: "2026-08-08"
 ---
 
-Yes, and the disagreements are the most instructive part of the record. Two early disagreements exposed genuinely different definitions hiding under one metric name and led to published methodology changes rather than a quiet pick of the nicer number. The full log, including raw readings, tip pins, and resolutions, is maintained as part of the portal's documentation, and reconciled metrics currently agree to the lovelace with zero tolerance.
+When two sources answer the same question differently, the disagreement is published rather than resolved silently: the raw readings, the pinned chain tip, the delta, and the resolution all enter the public disagreement log, and the affected value carries a resolved-disagreement label instead of an agreement badge. Disagreements are the most instructive part of the record, because they expose definitional differences hiding under a single metric name, and the portal's response to one is to force the definition into the open rather than to pick the nicer number.

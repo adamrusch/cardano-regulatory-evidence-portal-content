@@ -4,7 +4,8 @@ question: Who funds it?
 audience: [journalist, skeptic, regulator]
 category: about
 status: locked
+environment_bound: true
 last_reviewed: "2026-08-08"
 ---
 
-To date, nobody: the portal has been built and operated without ecosystem funding. The Intersect MBO board approved sponsorship through its Open Source Office in August 2026, which places the code and its maintenance under an established program. Any future funding arrangement will be stated on this page when it exists, because a reader weighing the evidence is entitled to know who pays for the scale.
+The portal was built without ecosystem funding. The design ratified by the Intersect MBO board places it under sponsorship of Intersect's Open Source Office, which brings its maintenance under an established program. Any funding arrangement in force will be stated on this page, because a reader weighing the evidence is entitled to know who pays for the scale.

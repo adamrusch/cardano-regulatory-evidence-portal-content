@@ -115,6 +115,7 @@ const publishedDocs = docs
     title: d.title,
     category: d.category,
     audience: d.audience,
+    summary: d.summary,
     html: marked.parse(d.body),
     last_reviewed: d.last_reviewed,
   }));

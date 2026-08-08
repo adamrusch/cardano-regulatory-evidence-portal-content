@@ -10,7 +10,7 @@ On every merge to `main`, continuous integration renders the markdown in this re
 
 ## Repository layout
 
-```
+```text
 faq/        one file per FAQ entry, YAML frontmatter + markdown body
 metrics/    one file per metric id: the question framing shown on the FAQ page
 docs/       long-form documentation pages (later phases)

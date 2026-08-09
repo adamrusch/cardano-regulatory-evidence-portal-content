@@ -4,7 +4,6 @@ question: How do I report an error or dispute a number?
 audience: [academic, community, skeptic]
 category: contributing
 status: locked
-publish: false
 environment_bound: true
 last_reviewed: "2026-08-08"
 ---

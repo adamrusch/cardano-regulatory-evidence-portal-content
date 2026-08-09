@@ -4,7 +4,6 @@ question: How do I propose a new metric?
 audience: [builder, academic]
 category: contributing
 status: locked
-publish: false
 environment_bound: true
 last_reviewed: "2026-08-08"
 ---

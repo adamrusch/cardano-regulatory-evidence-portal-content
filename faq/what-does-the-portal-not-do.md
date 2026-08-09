@@ -4,6 +4,7 @@ question: What does the portal explicitly not do?
 audience: [regulator, builder, skeptic]
 category: about
 status: locked
+order: 2
 last_reviewed: "2026-08-08"
 ---
 

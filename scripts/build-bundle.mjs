@@ -89,11 +89,18 @@ for (const f of faqs) {
 }
 
 const publishedFaqs = faqs.filter((f) => f.publish !== false);
+// Within a section, explicitly ordered entries come first (by their order
+// value), then the rest alphabetically by id.
+const byOrder = (a, b) =>
+  (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) ||
+  a.id.localeCompare(b.id);
+
 const faqSections = FAQ_SECTIONS.map(([id, title]) => ({
   id,
   title,
   entries: publishedFaqs
     .filter((f) => f.category === id)
+    .sort(byOrder)
     .map((f) => ({
       id: f.id,
       question: f.question,

@@ -5,6 +5,7 @@ audience: [regulator, journalist, skeptic]
 category: about
 status: locked
 environment_bound: true
+order: 3
 last_reviewed: "2026-08-08"
 ---
 

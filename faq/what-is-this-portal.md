@@ -4,6 +4,7 @@ question: What is this portal, and what is it not?
 audience: [regulator, builder, community, journalist, academic, skeptic]
 category: about
 status: locked
+order: 1
 last_reviewed: "2026-08-08"
 ---
 

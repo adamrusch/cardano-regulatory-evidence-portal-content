@@ -80,6 +80,11 @@
       "type": "boolean",
       "default": false,
       "description": "True when the entry's truth depends on the current deployment era (draft host, anchoring not begun, governance bodies not yet seated). The set of flagged entries is the review checklist for the production reset."
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Explicit position within the entry's section; entries without it sort after ordered ones, alphabetically."
     }
   }
 }

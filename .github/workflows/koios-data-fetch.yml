@@ -3,13 +3,20 @@
 # egress, so the Koios public API is fetched here and the resulting dataset
 # is committed back to the same branch for the analysis to consume.
 #
-# This workflow only runs on manual dispatch and is scoped to the analysis
-# branch; it is not part of the portal's publishing pipeline.
+# This workflow is scoped to the analysis branch and is not part of the
+# portal's publishing pipeline. It triggers on pushes to the analysis branch
+# (workflow_dispatch is unavailable for workflows that do not exist on the
+# default branch); the dataset commit it makes carries [skip ci] so it does
+# not retrigger itself.
 
 name: Koios data fetch
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [claude/cardano-pool-production-analysis-m9r5fv]
+    paths:
+      - "analysis/koios_fetch.py"
+      - ".github/workflows/koios-data-fetch.yml"
 
 permissions:
   contents: write

@@ -5,13 +5,23 @@ on:
   push:
     branches: [main]
 
+# Least privilege by default. Every step here is read-only; the build and
+# publish workflow is where write scopes live.
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # Actions pinned by full commit SHA per the supply-chain review. The
+      # comment after the ref names the tag the SHA belongs to so a human
+      # reviewer can cross-check without re-resolving the pin.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: 22
           cache: npm
@@ -25,8 +35,18 @@ jobs:
       - name: Frontmatter validation and bundle dry run
         run: npm run lint:frontmatter
 
+      - name: Build bundle
+        # The build step is what actually renders each fragment; it is
+        # already exercised on every merge by the publish workflow, but
+        # running it in lint means a shape or sanitizer failure blocks the
+        # PR instead of the publish.
+        run: node scripts/build-bundle.mjs
+
+      - name: Assert bundle uses only allowlisted tags
+        run: node scripts/assert-bundle-tags.mjs
+
       - name: Prose style rules (Vale)
-        uses: errata-ai/vale-action@v2
+        uses: errata-ai/vale-action@85f9f7f2c5f449ac0ae5b66662961bae3f77ca6a  # v2
         with:
           # STYLEGUIDE.md is excluded: it enumerates the forbidden forms as
           # examples, which the style rules would flag.
@@ -34,7 +54,7 @@ jobs:
           fail_on_error: true
 
       - name: Link check (lychee)
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8  # v2
         with:
           args: --no-progress --exclude-path node_modules "faq/**/*.md" "docs/**/*.md" "*.md"
           fail: true

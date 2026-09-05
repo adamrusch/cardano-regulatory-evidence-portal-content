@@ -12,6 +12,7 @@
   "devDependencies": {
     "ajv": "^8.17.1",
     "gray-matter": "^4.0.3",
+    "isomorphic-dompurify": "^2.16.0",
     "marked": "^15.0.4",
     "markdownlint-cli2": "^0.14.0"
   },

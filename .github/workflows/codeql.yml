@@ -1,0 +1,42 @@
+name: CodeQL
+
+# GitHub-hosted static analysis on the content repo. Enabled because the
+# repo is public and CodeQL is free for public repos. There is no runtime
+# JavaScript to analyze in the bundle itself, but the build tooling under
+# scripts/ processes attacker-shaped input (frontmatter, markdown), so the
+# same tooling is what CodeQL covers.
+#
+# Language set is JavaScript, matching the .mjs scripts. Actions and
+# actions-workflows analysis would add coverage of the workflow files
+# themselves; not enabled here because the workflows carry no long-lived
+# credentials or scripts.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * 2'
+
+permissions:
+  # CodeQL needs security-events: write to upload its results.
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@5ba2889ada762081db2c4f32a729827dce632c7b  # v3
+        with:
+          languages: javascript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@5ba2889ada762081db2c4f32a729827dce632c7b  # v3

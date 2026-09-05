@@ -1,0 +1,20 @@
+# Weekly dependency-update PRs for the content repository's dev tooling
+# and its GitHub Actions. Security advisories still open PRs immediately
+# regardless of the schedule.
+#
+# There is no runtime dependency here: the bundle is JSON and reaches the
+# site over HTTPS. Every dependency listed in package.json is a build-time
+# markdown/JSON-schema tool.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      content-dev-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

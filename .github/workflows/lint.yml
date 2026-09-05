@@ -46,7 +46,7 @@ jobs:
         run: node scripts/assert-bundle-tags.mjs
 
       - name: Prose style rules (Vale)
-        uses: errata-ai/vale-action@85f9f7f2c5f449ac0ae5b66662961bae3f77ca6a  # v2
+        uses: errata-ai/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff  # v3.0.0
         with:
           # STYLEGUIDE.md is excluded: it enumerates the forbidden forms as
           # examples, which the style rules would flag.

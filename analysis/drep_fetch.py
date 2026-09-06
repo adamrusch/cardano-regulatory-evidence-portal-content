@@ -97,7 +97,7 @@ def main():
     print(f"drep_info: {len(drep_info)} rows", flush=True)
 
     # Metadata only for DReps that are currently registered (names for ranking).
-    reg_ids = [d["drep_id"] for d in drep_info if d.get("registered")]
+    reg_ids = [d["drep_id"] for d in drep_info if d.get("drep_status") == "registered"]
     drep_metadata = []
     for i in range(0, len(reg_ids), 50):
         chunk = reg_ids[i : i + 50]

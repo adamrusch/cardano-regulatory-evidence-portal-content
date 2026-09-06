@@ -1,5 +1,3 @@
-https://be.gov.tools/drep/list?page=0&pageSize=25&sort=VotingPower
-https://be.gov.tools/drep/list?page=0&pageSize=10&search=AKYO
-https://be.gov.tools/drep/list?page=2&pageSize=25&sort=VotingPower
-https://adastat.net/rest/v1/dreps.json?rows=100&page=1&sort=amount&dir=desc
-https://adastat.net/rest/v1/dreps/e110365006277fb6a38f3365738f9a973b9d555a269f53a788224be4.json
+https://api.adastat.net/rest/v1/dreps.json?rows=100&page=1&sort=amount&dir=desc
+https://api.adastat.net/rest/v1/dreps/e110365006277fb6a38f3365738f9a973b9d555a269f53a788224be4.json
+https://api.adastat.net/rest/v1/dreps/drep1yts3qdjsqcnhld4r3uek2uu0n2tnh824tgnf75a83q3yhequuy54u.json

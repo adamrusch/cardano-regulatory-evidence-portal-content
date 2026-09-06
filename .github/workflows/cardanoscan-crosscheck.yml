@@ -1,0 +1,49 @@
+# Fetches a short list of Cardanoscan pages on a GitHub-hosted runner (the
+# analysis sandbox has no egress to cardanoscan.io) so a Koios-derived figure
+# can be cross-checked against an independent explorer. URLs are listed one
+# per line in analysis/crosscheck_urls.txt; the raw responses are committed
+# under analysis/data/crosscheck/ for local parsing. [skip ci] on the data
+# commit prevents retriggering.
+
+name: Cardanoscan cross-check fetch
+
+on:
+  push:
+    branches: [claude/cardano-pool-production-analysis-m9r5fv]
+    paths:
+      - "analysis/crosscheck_urls.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch listed URLs
+        run: |
+          mkdir -p analysis/data/crosscheck
+          rm -f analysis/data/crosscheck/*
+          i=0
+          while IFS= read -r url; do
+            [ -z "$url" ] && continue
+            i=$((i+1))
+            echo "fetching [$i] $url"
+            curl -sSL --max-time 60 \
+              -A "Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0" \
+              -o "analysis/data/crosscheck/page$i.html" "$url" || echo "FAILED $url"
+            echo "$url" > "analysis/data/crosscheck/page$i.url"
+            sleep 2
+          done < analysis/crosscheck_urls.txt
+
+      - name: Commit responses to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/data/crosscheck
+          git commit -m "Add Cardanoscan cross-check responses [skip ci]"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

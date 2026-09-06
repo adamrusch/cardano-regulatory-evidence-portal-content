@@ -12,6 +12,7 @@ on:
     branches: [claude/cardano-pool-production-analysis-m9r5fv]
     paths:
       - "analysis/crosscheck_urls.txt"
+      - "analysis/crosscheck_render.py"
 
 permissions:
   contents: write
@@ -23,21 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch listed URLs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Render listed URLs in headless Chromium
         run: |
-          mkdir -p analysis/data/crosscheck
-          rm -f analysis/data/crosscheck/*
-          i=0
-          while IFS= read -r url; do
-            [ -z "$url" ] && continue
-            i=$((i+1))
-            echo "fetching [$i] $url"
-            curl -sSL --max-time 60 \
-              -A "Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0" \
-              -o "analysis/data/crosscheck/page$i.html" "$url" || echo "FAILED $url"
-            echo "$url" > "analysis/data/crosscheck/page$i.url"
-            sleep 2
-          done < analysis/crosscheck_urls.txt
+          pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+          python analysis/crosscheck_render.py
 
       - name: Commit responses to this branch
         run: |

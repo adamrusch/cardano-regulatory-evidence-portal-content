@@ -1,0 +1,1 @@
+{"code":400,"error":"The 'sort' parameter must be one of the following values: reg_time, live_stake, active_stake, delegator, active_until"}

@@ -21,7 +21,7 @@ scripts/    the bundle build script used by CI
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). In short: open an issue with one of the templates, or open a pull request. Continuous integration enforces the [style rules](STYLEGUIDE.md) mechanically, so review can stay on substance. Substantive changes to locked files need a domain reviewer per [CODEOWNERS](CODEOWNERS); typo fixes need one maintainer.
+See [CONTRIBUTING.md](CONTRIBUTING.md). In short: open an issue with one of the templates, or open a pull request. Continuous integration enforces the [style rules](STYLEGUIDE.md) mechanically, so review can stay on substance. Substantive changes to locked files need a domain reviewer per [CODEOWNERS](CODEOWNERS); typo fixes need one maintainer. [REFERENCES.md](REFERENCES.md) is the maintainers' working list of people and resources for future projects; it is never rendered into the site.
 
 ## Licensing
 

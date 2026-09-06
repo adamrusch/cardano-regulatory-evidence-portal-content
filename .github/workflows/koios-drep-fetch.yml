@@ -1,0 +1,42 @@
+# Companion to koios-data-fetch.yml: retrieves the DRep voting-power dataset
+# from Koios on a GitHub-hosted runner (the analysis sandbox has no egress to
+# Cardano API hosts) and commits it to this branch. Triggers on pushes that
+# touch the DRep fetch script or this workflow; the dataset commit carries
+# [skip ci] so it does not retrigger itself.
+
+name: Koios DRep fetch
+
+on:
+  push:
+    branches: [claude/cardano-pool-production-analysis-m9r5fv]
+    paths:
+      - "analysis/drep_fetch.py"
+      - ".github/workflows/koios-drep-fetch.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch DRep dataset from Koios
+        run: |
+          mkdir -p analysis/data
+          python analysis/drep_fetch.py
+
+      - name: Commit dataset to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/data/koios_drep_dataset.json.gz
+          git commit -m "Add Koios DRep dataset snapshot [skip ci]"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

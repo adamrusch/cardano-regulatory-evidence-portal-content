@@ -1,2 +1,3 @@
-https://api.koios.rest/api/v1/proposal_list?limit=1000&offset=0
-https://api.koios.rest/api/v1/proposal_list?limit=1000&offset=1000
+https://forum.cardano.org/search.json?q=Esgen
+https://forum.cardano.org/search.json?q=Esgen%20hard%20fork
+https://forum.cardano.org/search.json?q=%22von%20Bergen%22%20hard%20fork

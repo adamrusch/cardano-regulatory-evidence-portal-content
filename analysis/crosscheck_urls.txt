@@ -1,9 +1,2 @@
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=1&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=2&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=3&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=4&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=5&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=6&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=7&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=10&page=8&sort=live_stake&dir=desc
-https://api.adastat.net/rest/v1/dreps.json?rows=100&sort=live_stake&dir=desc
+https://api.koios.rest/api/v1/proposal_list?limit=1000&offset=0
+https://api.koios.rest/api/v1/proposal_list?limit=1000&offset=1000

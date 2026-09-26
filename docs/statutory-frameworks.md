@@ -34,10 +34,6 @@ Passed by the US House of Representatives on July 17, 2025. Its Section 205 defi
 
 The Senate's market structure counterpart, combining committee versions, was never enrolled; cloture on it failed on September 15, 2026. Every provision the portal maps under this framework is a paraphrase, described from public reporting and labeled as such. No language under this framework appears in quotation marks, because only an enrolled bill could sustain that discipline. Retained as reference for the same reason as the House text.
 
-## The SEC and CFTC joint interpretive release
-
-Release Nos. 33-11412 and 34-105020, adopted March 17, 2026, published at 91 FR 13714. The release classifies crypto assets into five categories and names ADA among its examples of digital commodities, based on characteristics it describes: a functional crypto system, value derived from programmatic operation, and no central party holding operational, economic, or voting control. It is an agency interpretation, not a statute: it governs how the agencies administer the law, does not bind courts, and speaks as of its date. The portal maps its evidence to the release's operative concepts so a reader can check, on any later date, whether the facts behind the classification still hold.
-
 ## The citation discipline
 
 Quoted language on the portal reproduces the cited instrument's published text exactly, verified against the source before entry, and everything else is labeled paraphrase. The distinction is shown on every provision panel. Composing statutory-sounding language and marking it verbatim would falsify the record, so the rule is enforced with the same rigor as the numbers.

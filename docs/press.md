@@ -10,7 +10,7 @@ last_reviewed: "2026-08-09"
 ---
 ## The one-sentence description
 
-The Cardano Regulatory Evidence Portal is a public, verifiable body of evidence on whether Cardano meets the characteristics United States digital asset law asks of a mature blockchain system, built under a design ratified by the board of Intersect MBO.
+The Cardano Regulatory Evidence Portal is a public, verifiable record of measurements of Cardano's operational, economic, and voting control, the three categories named in the SEC and CFTC joint interpretive release of March 2026, computed from public data under published methods and committed daily to the Cardano ledger, built under a mandate of the board of Intersect MBO.
 
 ## Quoting the numbers
 
@@ -22,4 +22,4 @@ The portal does not assert a regulatory status for Cardano, does not characteriz
 
 ## Contact
 
-Questions and corrections travel through the public content repository's issue tracker, where they are triaged in the open. A direct press contact will be stated here when the portal's stewardship transition to Intersect's Open Source Office completes.
+Questions and corrections travel through the public content repository's issue tracker, where they are triaged in the open. A direct press contact will be stated here when the production portal, operated by Intersect Operations, launches.

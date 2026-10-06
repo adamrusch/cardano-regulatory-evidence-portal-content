@@ -11,23 +11,18 @@ This site is VerifyCardano, the Cardano Regulatory Evidence Portal operated by I
 
 ## The marks
 
-![VerifyCardano seal](/brand/verifycardano-seal.svg)
-
-The seal is an open ring in Cardano Blue with a check in the portal's ink. The opening in the ring is centered on the line of the check's long stroke; the mark means "checkable", not "approved". The wordmark sets "Verify" in ink and "Cardano" in Cardano Blue as one word, in the same typeface the site uses.
-
-![VerifyCardano lockup](/brand/verifycardano-lockup.svg)
+The files below show the marks; the site's documentation pages carry text only, so they are linked rather than displayed here. The seal is an open ring in Cardano Blue with a check in the portal's ink. The opening in the ring is centered on the line of the check's long stroke; the mark means "checkable", not "approved". The wordmark sets "Verify" in ink and "Cardano" in Cardano Blue as one word, in the same typeface the site uses.
 
 ## Files
 
-All files are served from this site under `/brand/` and kept in the `brand/` folder of the portal's source repository with the same names.
+All files are served from this site under `/brand/` (the links below name the current host and change with the production domain) and kept in the `brand/` folder of the portal's source repository with the same names.
 
-- [verifycardano-seal.svg](/brand/verifycardano-seal.svg): the seal for light backgrounds.
-- [verifycardano-seal-dark.svg](/brand/verifycardano-seal-dark.svg): the seal for dark backgrounds.
-- [verifycardano-seal-mono.svg](/brand/verifycardano-seal-mono.svg): the seal in one color, for print and one-ink uses with at least 3 to 1 contrast.
-- [verifycardano-lockup.svg](/brand/verifycardano-lockup.svg) and [verifycardano-lockup-dark.svg](/brand/verifycardano-lockup-dark.svg): seal and wordmark together.
-- [verifycardano-lockup.png](/brand/verifycardano-lockup.png) and [verifycardano-lockup-dark.png](/brand/verifycardano-lockup-dark.png): raster renders of the lockups.
-- [seal-1024.png](/brand/seal-1024.png): a transparent raster master of the seal for resizing.
-- The site's own icons ([favicon.svg](/favicon.svg), favicon.ico, icon-192.png, icon-512.png, apple-touch-icon.png) are generated from the same geometry.
+- [verifycardano-seal.svg](https://portal.drep.tools/brand/verifycardano-seal.svg): the seal for light backgrounds.
+- [verifycardano-seal-dark.svg](https://portal.drep.tools/brand/verifycardano-seal-dark.svg): the seal for dark backgrounds.
+- [verifycardano-seal-mono.svg](https://portal.drep.tools/brand/verifycardano-seal-mono.svg): the seal in one color, for print and one-ink uses with at least 3 to 1 contrast.
+- [verifycardano-lockup.svg](https://portal.drep.tools/brand/verifycardano-lockup.svg) and [verifycardano-lockup-dark.svg](https://portal.drep.tools/brand/verifycardano-lockup-dark.svg): seal and wordmark together.
+- [seal-1024.png](https://portal.drep.tools/brand/seal-1024.png): a transparent raster master of the seal for resizing.
+- The site's own icons ([favicon.svg](https://portal.drep.tools/favicon.svg), favicon.ico, icon-192.png, icon-512.png, apple-touch-icon.png) are generated from the same geometry.
 
 ## Using the marks without asking
 
@@ -51,4 +46,4 @@ Colors: ring #0033AD and check #0F172A on light surfaces; ring #8AB0F5 and check
 
 ## The policy
 
-The full policy is [TRADEMARK_POLICY.md in the brand folder](/brand/TRADEMARK_POLICY.md) of the source repository, version 1.0 of October 6, 2026. It adapts the structure and several rules of the Creative Commons Trademark Policy, which Creative Commons publishes under CC BY 4.0, and it is offered under the same license so other public-evidence projects can adapt it in turn. Creative Commons is not affiliated with this site and does not endorse the policy. Intersect reserves all rights not granted, and any permission may be revoked for a use that brings the site into disrepute or confuses readers about who operates it or what it says. Questions go to the contact address published on this site.
+The full policy is [TRADEMARK_POLICY.md in the brand folder](https://portal.drep.tools/brand/TRADEMARK_POLICY.md) of the source repository, version 1.0 of October 6, 2026. It adapts the structure and several rules of the Creative Commons Trademark Policy, which Creative Commons publishes under CC BY 4.0, and it is offered under the same license so other public-evidence projects can adapt it in turn. Creative Commons is not affiliated with this site and does not endorse the policy. Intersect reserves all rights not granted, and any permission may be revoked for a use that brings the site into disrepute or confuses readers about who operates it or what it says. Questions go to the contact address published on this site.

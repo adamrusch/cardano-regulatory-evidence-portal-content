@@ -1,6 +1,6 @@
 # Cardano Regulatory Evidence Portal: content
 
-This repository holds the reader-facing prose of the [Cardano Regulatory Evidence Portal](https://portal.drep.tools): the FAQ entries, the per-metric question framings, and (in later phases) the long-form documentation pages. The portal's website draws its prose from this repository; its metric values come from the portal's own data pipeline and never from here.
+This repository holds the reader-facing prose of the [Cardano Regulatory Evidence Portal](https://verifycardano.com): the FAQ entries, the per-metric question framings, and (in later phases) the long-form documentation pages. The portal's website draws its prose from this repository; its metric values come from the portal's own data pipeline and never from here.
 
 The two are deliberately separate. Prose can be corrected, extended, and discussed in public through issues and pull requests on this repository, on its own release cadence, without touching the software that computes the evidence. The portal's source code lives in a separate repository that is scheduled for public release under Intersect MBO's Open Source Office; this content repository is designed to become public first.
 

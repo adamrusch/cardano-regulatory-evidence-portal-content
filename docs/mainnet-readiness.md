@@ -129,7 +129,7 @@ BUILD_PLAN.md section 4 commits to "at least two providers (Blockfrost IPFS
 plus one other; single-provider pinning is a single point of failure)."
 Blockfrost has since been removed from the pipeline. Manifests are now pinned
 through a single IPFS provider, Pinata, and the same bytes are copied to the
-operator's S3 mirror at `portal.drep.tools/ipfs-mirror/<CID>`. The mirror
+operator's S3 mirror at `verifycardano.com/ipfs-mirror/<CID>`. The mirror
 serves the bytes over HTTPS and the verifier tries it first, but it is not a
 second IPFS provider. If the Pinata pin goes away, the CID stops resolving
 through IPFS for anyone who does not already hold the bytes, and verification

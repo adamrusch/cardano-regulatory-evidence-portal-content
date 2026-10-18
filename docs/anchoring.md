@@ -204,7 +204,7 @@ than falling back to a filesystem path. A silent fallback here would
 reproduce exactly the class of bug this document exists to prevent, so
 the failure mode is loud, human-readable, and cannot be missed. After a
 successful pin the pipeline also uploads the same bytes to the
-operator's S3 mirror, served at `https://portal.drep.tools/ipfs-mirror/<CID>`.
+operator's S3 mirror, served at `https://verifycardano.com/ipfs-mirror/<CID>`.
 A mirror failure downgrades to a warning: the pin itself succeeded, so
 the chain is not blocked; the warning surfaces in the operator log for
 follow-up. The mirror is not a second IPFS provider; see item B4 of the
@@ -214,11 +214,14 @@ The verifier does not depend on Pinata. Given `ipfs://<CID>`, the
 verifier walks a fallback chain of gateways:
 
 1. Any extra gateways the caller passes.
-2. `https://portal.drep.tools/ipfs-mirror/<CID>` (the operator-run mirror,
+2. `https://verifycardano.com/ipfs-mirror/<CID>` (the operator-run mirror,
    listed first for availability; it adds no trust because every fetched
    byte is checked against the on-chain manifest hash before use).
 3. `https://ipfs.io/ipfs/<CID>`
 4. `https://dweb.link/ipfs/<CID>`
+
+`https://portal.drep.tools/ipfs-mirror/<CID>` still serves the same files
+for older references.
 
 Cloudflare's public IPFS gateway (`cloudflare-ipfs.com`) was retired in
 September 2024 and was removed from the walk in September 2026; a dead
@@ -268,7 +271,7 @@ Seven steps:
 3. Fetch the leaf manifest. Parse `leaf_manifest_uri` as
    `ipfs://<CID>`, then fetch the CID through any IPFS gateway you
    trust (`ipfs.io`, `dweb.link`, the operator's mirror at
-   `portal.drep.tools/ipfs-mirror`, or a local IPFS daemon). Compute BLAKE2b-256 of the fetched
+   `verifycardano.com/ipfs-mirror`, or a local IPFS daemon). Compute BLAKE2b-256 of the fetched
    bytes; it must equal `leaf_manifest_hash`. If not, the bytes at that
    CID are not the ones the anchor commits to, and the manifest is
    rejected regardless of which gateway served it.

@@ -5,7 +5,7 @@ category: verification
 audience: [regulator, academic, skeptic]
 summary: "What the portal commits to on the Cardano chain, and how to verify a value against that commitment without trusting the operators."
 status: locked
-last_reviewed: "2026-08-09"
+last_reviewed: "2026-10-18"
 ---
 Version 1. Written July 25, 2026.
 
@@ -148,10 +148,10 @@ Shape:
 ```json
 {
   "schemaVersion": "cardano-regportal.leaf-manifest/3",
-  "anchorDate": "2026-07-25",
-  "network": "preprod",
+  "anchorDate": "2026-10-18",
+  "network": "mainnet",
   "leafSchemaTag": "cardano-regportal.observation/3",
-  "leafCount": 14,
+  "leafCount": 23,
   "merkleRoot": "<64 hex chars>",
   "methodologyBundleHash": "<64 hex chars>",
   "pipelineVersion": {
@@ -179,7 +179,7 @@ it does not need; the ones that matter for verification are `metricId`,
 `observedForDate`, `value`, and `leafPreimageHex`.
 
 The manifest is cached locally to `data/archive/anchors/{network}/` for
-operator audit and durability, and pinned to IPFS through Blockfrost. The
+operator audit and durability, and pinned to IPFS through Pinata. The
 on-chain URI is always `ipfs://<CID>` and never anything else. Gateway
 URLs and filesystem paths are refused at metadata-build time by
 `src/anchor/metadata.ts`, and the regression test
@@ -198,25 +198,35 @@ day anchored-history commitment does not tolerate that failure mode.
 
 ## 4a. IPFS pinning and gateway resolution
 
-Pinning uses Blockfrost's IPFS service. `BLOCKFROST_IPFS_PROJECT_ID` must
-be set when running `scripts/anchor-preprod.mjs`; if it is absent the
-script refuses to run rather than falling back to a filesystem path. A
-silent fallback here would reproduce exactly the class of bug this
-document exists to prevent, so the failure mode is loud, human-readable,
-and cannot be missed.
+Pinning uses Pinata's v3 Files API. `PINATA_JWT` must be set when running
+the anchor scripts; if it is absent the script refuses to run rather
+than falling back to a filesystem path. A silent fallback here would
+reproduce exactly the class of bug this document exists to prevent, so
+the failure mode is loud, human-readable, and cannot be missed. After a
+successful pin the pipeline also uploads the same bytes to the
+operator's S3 mirror, served at `https://portal.drep.tools/ipfs-mirror/<CID>`.
+A mirror failure downgrades to a warning: the pin itself succeeded, so
+the chain is not blocked; the warning surfaces in the operator log for
+follow-up. The mirror is not a second IPFS provider; see item B4 of the
+[mainnet readiness checklist](#/docs/mainnet-readiness).
 
-The verifier never depends on Blockfrost. Given `ipfs://<CID>`, the
+The verifier does not depend on Pinata. Given `ipfs://<CID>`, the
 verifier walks a fallback chain of gateways:
 
-1. Any extra gateways the caller passes (a Blockfrost IPFS gateway when
-   `BLOCKFROST_IPFS_PROJECT_ID` or `--blockfrost-ipfs-project` is given).
-2. `https://ipfs.io/ipfs/<CID>`
-3. `https://dweb.link/ipfs/<CID>`
-4. `https://cloudflare-ipfs.com/ipfs/<CID>`
+1. Any extra gateways the caller passes.
+2. `https://portal.drep.tools/ipfs-mirror/<CID>` (the operator-run mirror,
+   listed first for availability; it adds no trust because every fetched
+   byte is checked against the on-chain manifest hash before use).
+3. `https://ipfs.io/ipfs/<CID>`
+4. `https://dweb.link/ipfs/<CID>`
+
+Cloudflare's public IPFS gateway (`cloudflare-ipfs.com`) was retired in
+September 2024 and was removed from the walk in September 2026; a dead
+host in the list would waste one per-gateway timeout per verification.
 
 The first gateway that returns non-empty bytes wins, and the verifier
 reports which one served the bytes in its output. A third party with no
-Blockfrost account can verify against the public gateways alone; the
+operator credential can verify against the public gateways alone; the
 `--manifest <path>` override lets a party who obtained the bytes by any
 means (local cache, IPFS pin on another provider, S3 replica) verify
 fully offline. The on-chain `leaf_manifest_hash` gates correctness in
@@ -257,8 +267,8 @@ Seven steps:
    that version.
 3. Fetch the leaf manifest. Parse `leaf_manifest_uri` as
    `ipfs://<CID>`, then fetch the CID through any IPFS gateway you
-   trust (`ipfs.io`, `dweb.link`, `cloudflare-ipfs.com`, a Blockfrost
-   gateway, or a local IPFS daemon). Compute BLAKE2b-256 of the fetched
+   trust (`ipfs.io`, `dweb.link`, the operator's mirror at
+   `portal.drep.tools/ipfs-mirror`, or a local IPFS daemon). Compute BLAKE2b-256 of the fetched
    bytes; it must equal `leaf_manifest_hash`. If not, the bytes at that
    CID are not the ones the anchor commits to, and the manifest is
    rejected regardless of which gateway served it.
@@ -301,19 +311,37 @@ edit history silently" to "trust that the anchor transaction is on chain
 and that the manifest at its URI is what it hashed to." The first is a
 promise; the second is a fact you can check yourself.
 
-## 8. Preprod versus mainnet, and the July 2026 schema-tag rename
+## 8. Mainnet, preprod, and the July 2026 schema-tag rename
 
-Preprod anchoring runs continuously. It costs approximately 185,301
-lovelace per anchor (about 0.19 tADA) at current preprod fees and produces
-a fresh transaction each day. The anchor address is
-`addr_test1vq6kyrvyhm7hm2g39pwqvcnw9yy8ezxzfnqkk2ak332yu4cfhhk53` and its
-current UTxOs are visible on any preprod explorer.
+Mainnet anchoring is live. The genesis anchor was submitted on October 18,
+2026 at 12:25:43 UTC in transaction
+`a08f5ce5663a25bf028121869ea649b9fc1d236b1605b95570e25d0b80846999`
+(block 14084471). It covers the anchor date 2026-10-18 with 23 leaves. The
+key registry that establishes the anchoring key's authority begins at
+transaction
+`49907505993ba6267920561e99e0d9fe6149da729b773a90fb997b3213b6824c`.
 
-Mainnet anchoring is a separate, later decision. Once the first mainnet
-anchor is submitted, the sixty-day anchored-history commitment starts
-running and beta-era mainnet values become permanently anchored, including
-any that later prove wrong. The correction workflow, running through
-`correction_of` on future observations, is the mechanism for handling that.
+The mainnet anchor address is
+`addr1v9u678np98m337rdd3ulege05frru3pu6j02qr5pj95h3xqkkxpqp` and its
+transactions and current UTxOs are visible on any mainnet explorer. Each
+anchor is a fresh transaction. A normal day's anchor costs about 185,000
+lovelace (about 0.19 ADA). The genesis anchor cost 239,069 lovelace because
+it also carries the genesis map described in CANONICALIZATION.md section 6.
+
+With the genesis anchor submitted, the sixty-day anchored-history
+commitment is running, counted from October 18, 2026, and beta-era mainnet
+values are permanently anchored, including any that later prove wrong. The
+correction workflow, running through `correction_of` on future
+observations, is the mechanism for handling that.
+
+Preprod anchoring ran from July 25, 2026 to October 17, 2026 as the proving
+ground for the pipeline, and stopped when mainnet anchoring began. Its
+anchor address was
+`addr_test1vq6kyrvyhm7hm2g39pwqvcnw9yy8ezxzfnqkk2ak332yu4cfhhk53`. The
+preprod anchors stay on chain and still verify, but they are test anchors
+and not part of the record. The hash chain is kept per network, so the
+mainnet chain does not reference them: the mainnet genesis anchor's
+`prev_anchor_tx` is empty.
 
 In July 2026 the product was renamed from "Cardano Regulatory Dashboard"
 to "Cardano Regulatory Evidence Portal". The on-chain schema tags moved
@@ -397,7 +425,7 @@ old one via `supersedes_anchor_id` and records a reason in
 partial UNIQUE index on `(network, anchor_date) WHERE
 superseded_by_anchor_id IS NULL` (at most one current anchor per date)
 and by a partial UNIQUE index on `supersedes_anchor_id` (no fork in the
-supersede chain). Weakening either guard is not permitted; the
-`anchor-preprod` script exposes `--supersede <id-or-tx>` and
-`--supersede-reason "..."` as the legitimate path, and refuses to run if
+supersede chain). Weakening either guard is not permitted; the anchor
+scripts expose `--supersede <id-or-tx>` and
+`--supersede-reason "..."` as the legitimate path, and refuse to run if
 one is supplied without the other.

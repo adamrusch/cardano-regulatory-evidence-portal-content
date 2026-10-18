@@ -6,8 +6,16 @@ audience: [regulator, community]
 summary: "The checklist that gates the start of mainnet anchoring, with the status of every item."
 status: locked
 environment_bound: true
-last_reviewed: "2026-08-09"
+last_reviewed: "2026-10-18"
 ---
+Mainnet anchoring began on 2026-10-18 with the genesis anchor
+`a08f5ce5663a25bf028121869ea649b9fc1d236b1605b95570e25d0b80846999`. This
+checklist stays published as the record of what was true when it began.
+Items B8, B9 and B11 were re-checked and met on that date. Two blocking
+items were not fully closed and anchoring started with them open, as an
+accepted risk: B4 (a second IPFS provider) and B10 (a year's funding at the
+gate's three-times margin). Both are stated below as they stand.
+
 Starting mainnet anchoring is not reversible. The first submitted anchor begins
 the sixty-day anchored-history commitment, and every value it commits to is
 permanent, including any that later prove wrong. The correction workflow exists
@@ -119,12 +127,16 @@ Not met.
 
 BUILD_PLAN.md section 4 commits to "at least two providers (Blockfrost IPFS
 plus one other; single-provider pinning is a single point of failure)."
-`src/anchor/manifest.ts` calls `opts.ipfs.pin` on a single `BlockfrostIpfsClient`.
-If that pin goes away, the CID stops resolving for anyone who does not already
-hold the bytes, and the standalone verification claim in ANCHORING.md section
-4a fails.
+Blockfrost has since been removed from the pipeline. Manifests are now pinned
+through a single IPFS provider, Pinata, and the same bytes are copied to the
+operator's S3 mirror at `portal.drep.tools/ipfs-mirror/<CID>`. The mirror
+serves the bytes over HTTPS and the verifier tries it first, but it is not a
+second IPFS provider. If the Pinata pin goes away, the CID stops resolving
+through IPFS for anyone who does not already hold the bytes, and verification
+then depends on the operator's mirror. Re-checked 2026-10-18: still not met,
+and no written waiver exists.
 
-Check: the anchoring script pins through Blockfrost and one other named
+Check: the anchoring script pins through Pinata and one other named IPFS
 provider, and a manifest retrieved from the second provider hashes to the
 on-chain `leaf_manifest_hash`.
 
@@ -185,7 +197,7 @@ never reaches the env var check that follows.
 
 ### B8. A mainnet anchoring script exists and has been dry-run
 
-Partially met, 2026-07-25.
+Met, 2026-10-18.
 
 `scripts/anchor-mainnet.mjs` exists as a thin wrapper over the shared
 `runAnchorCli` in `src/anchor/cli.ts`. The extraction removes the previous
@@ -194,40 +206,49 @@ five hardcoded `'preprod'` strings; the wrappers carry only network config.
 `keys/anchor-mainnet.skey.json` with the `addr1` prefix; it refuses to
 overwrite an existing file.
 
-The dry run itself has not been executed. It needs
-`BLOCKFROST_MAINNET_PROJECT_ID` and mainnet chain access, both listed under
-B11 and both coordinator-side. The mainnet script is coded so the
-coordinator can invoke `node scripts/anchor-mainnet.mjs --dry-run` once the
-env var is set; the wrapper's help output was verified locally, and the
-mainnet code path is exercised in `test/anchor/cli-mainnet.test.ts` (missing
-env var, wrong-network signer, missing key file).
+The mainnet dry run was executed on 2026-10-18 against Koios, and the real
+run that followed submitted the genesis anchor
+`a08f5ce5663a25bf028121869ea649b9fc1d236b1605b95570e25d0b80846999`. The
+earlier wording of this item named `BLOCKFROST_MAINNET_PROJECT_ID`; that
+dependency no longer exists (see B11).
 
-Check: run `node scripts/anchor-mainnet.mjs --dry-run` when
-`BLOCKFROST_MAINNET_PROJECT_ID` is available; the output prints tx hash and
-fee without submitting.
+Check: run `node scripts/anchor-mainnet.mjs --dry-run`; the output prints tx
+hash and fee without submitting.
 
 ### B9. A mainnet anchor key exists and its address is published
 
-Not met. `keys/` holds `anchor-preprod.skey.json` and `anchor-preprod.addr`
-only.
+Met, 2026-10-18.
 
-Check: `ls -la keys/anchor-mainnet.skey.json` shows mode `-rw-------`, and the
-address appears on a public page of the portal.
+The mainnet key exists on the production host with mode `-rw-------`. Its
+address is `addr1v9u678np98m337rdd3ulege05frru3pu6j02qr5pj95h3xqkkxpqp`,
+published here and in ANCHORING.md section 8.
+
+Check: `ls -la keys/anchor-mainnet.skey.json` on the production host shows
+mode `-rw-------`, and the address appears on a public page of the portal.
 
 ### B10. The mainnet anchor address is funded for at least a year
 
-Not met, and not yet checkable, since the address does not exist.
+Partially met, 2026-10-18.
+
+The address held 99.58 ADA when anchoring began. At about 0.19 ADA per daily
+anchor that covers roughly 1.4 years, which clears the one-year line in the
+heading but not the three-times margin the check asks for. A top-up is
+pending.
 
 Check: the address balance is at least three times a year of anchoring at the
-observed preprod fee of about 185,301 lovelace per anchor, so on the order of
-200 ada.
+observed fee of about 185,000 lovelace per anchor, so on the order of
+200 ADA.
 
 ### B11. Chain access for mainnet is configured
 
-Not met. `BLOCKFROST_MAINNET_PROJECT_ID` is unset in `.envrc.local`.
+Met, 2026-10-18. The original check is superseded.
 
-Check: the variable is set and a request to
-`https://cardano-mainnet.blockfrost.io/api/v0/blocks/latest` returns 200.
+Blockfrost has been removed from the pipeline. Mainnet chain access is through
+Koios with an API token (`KOIOS_API_TOKEN`), and the genesis anchor was
+submitted and confirmed through it, which is the proof that access works.
+
+Check: `KOIOS_API_TOKEN` is set on the production host, and a mainnet dry run
+(B8) completes and prints a fee.
 
 ### B12. A preprod anchor verifies standalone from a public gateway
 

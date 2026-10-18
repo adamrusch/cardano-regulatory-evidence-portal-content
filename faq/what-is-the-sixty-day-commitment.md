@@ -5,7 +5,7 @@ audience: [regulator, skeptic]
 category: anchoring
 status: locked
 environment_bound: true
-last_reviewed: "2026-08-08"
+last_reviewed: "2026-10-18"
 ---
 
-The portal commits to accumulating at least sixty days of continuous anchored history on mainnet before presenting the record as launch-ready. The clock starts the day the first mainnet anchor transaction is submitted, and that date will be stated on the site banner. The point is that a tamper-evident record is only as persuasive as its length: a reader inspecting the portal should find a standing history, not a freshly minted one.
+The portal commits to accumulating at least sixty days of continuous anchored history on mainnet before presenting the record as launch-ready. The clock started on October 18, 2026, the day the first mainnet anchor transaction was submitted, and the site banner states that date. The point is that a tamper-evident record is only as persuasive as its length: a reader inspecting the portal should find a standing history, not a freshly minted one.

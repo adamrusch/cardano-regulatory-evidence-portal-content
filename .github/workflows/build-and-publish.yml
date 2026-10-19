@@ -1,13 +1,25 @@
 name: Build and publish
 
-# On every merge to main: build content-bundle.json and publish it to the
-# site's content origin, then invalidate the CDN path. The site fetches the
-# bundle at page load, so a merged change is visible within minutes without
-# any site rebuild.
+# On every merge to main: build content-bundle.json once and publish it to
+# each site target's content origin, then invalidate each target's CDN path.
+# The site fetches the bundle at page load, so a merged change is visible
+# within minutes without any site rebuild.
 #
-# Auth is OIDC-federated: the workflow assumes an AWS role scoped to writing
-# the content/ prefix and creating invalidations. No long-lived credentials
-# are stored in this repository. Repository variables required:
+# Auth is OIDC-federated: for each target the workflow assumes an AWS role
+# scoped to writing the content/ prefix and creating invalidations. No
+# long-lived credentials are stored in this repository.
+#
+# Targets. During the move of the site to its new AWS account the bundle is
+# published to more than one target (a dual-write; see the main repo's
+# epoch-ops/TODOS_Phase2.md, decision D9). Repository variable:
+#   PUBLISH_TARGETS  JSON array, one object per target:
+#     [{"name": "phase1", "role": "<role arn>", "bucket": "<bucket>",
+#       "dist": "<distribution id>", "region": "us-east-1", "required": true},
+#      {"name": "verifycardano", ..., "required": false}]
+#   A required target's failure fails the run; an optional target's failure
+#   is shown on the run but does not fail it.
+# When PUBLISH_TARGETS is unset, the original single-target variables are
+# used as one required target, exactly as before:
 #   AWS_ROLE_ARN         the publish role
 #   CONTENT_BUCKET       the site bucket name
 #   CLOUDFRONT_DIST_ID   the distribution id
@@ -25,7 +37,7 @@ permissions:
   contents: read
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       # Actions pinned by full commit SHA per the supply-chain review. The
@@ -50,23 +62,82 @@ jobs:
         # publish before it starts if the invariant ever regresses.
         run: node scripts/assert-bundle-tags.mjs
 
+      # Built once and shared, so every target receives byte-identical
+      # bundles (the bundle carries its own generated_at timestamp).
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: content-bundle
+          path: content-bundle.json
+          if-no-files-found: error
+          retention-days: 7
+
+  targets:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.targets.outputs.list }}
+    steps:
+      - name: Resolve publish targets
+        id: targets
+        env:
+          PUBLISH_TARGETS: ${{ vars.PUBLISH_TARGETS }}
+          LEGACY_ROLE: ${{ vars.AWS_ROLE_ARN }}
+          LEGACY_BUCKET: ${{ vars.CONTENT_BUCKET }}
+          LEGACY_DIST: ${{ vars.CLOUDFRONT_DIST_ID }}
+        run: |
+          if [ -n "$PUBLISH_TARGETS" ]; then
+            list=$(printf '%s' "$PUBLISH_TARGETS" | jq -c '.')
+          else
+            list=$(jq -cn --arg role "$LEGACY_ROLE" --arg bucket "$LEGACY_BUCKET" --arg dist "$LEGACY_DIST" \
+              '[{name: "default", role: $role, bucket: $bucket, dist: $dist, region: "us-east-1", required: true}]')
+          fi
+          # Every target needs role, bucket and dist; exactly one is required.
+          printf '%s' "$list" | jq -e 'type == "array" and length > 0
+            and all(.[]; (.role|type) == "string" and (.role|length) > 0
+                         and (.bucket|type) == "string" and (.bucket|length) > 0
+                         and (.dist|type) == "string" and (.dist|length) > 0)
+            and ([.[] | select(.required == true)] | length) == 1' >/dev/null \
+            || { echo "::error::PUBLISH_TARGETS must be a non-empty array of {name, role, bucket, dist, region, required} with exactly one required target"; exit 1; }
+          list=$(printf '%s' "$list" | jq -c 'map(.region //= "us-east-1")')
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          printf '%s' "$list" | jq -r '.[] | "target \(.name): bucket \(.bucket), dist \(.dist), \(.region), required=\(.required)"'
+
+  publish:
+    needs: [build, targets]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.targets.outputs.list) }}
+    # An optional target's failure is reported on its leg but does not fail
+    # the workflow; the required target's failure does.
+    continue-on-error: ${{ !matrix.target.required }}
+    name: publish (${{ matrix.target.name }})
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: content-bundle
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c  # v4
         with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+          role-to-assume: ${{ matrix.target.role }}
+          aws-region: ${{ matrix.target.region }}
 
       - name: Publish bundle (latest and dated snapshot)
+        env:
+          BUCKET: ${{ matrix.target.bucket }}
         run: |
           STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-          aws s3 cp content-bundle.json "s3://${{ vars.CONTENT_BUCKET }}/content/content-bundle.json" \
+          aws s3 cp content-bundle.json "s3://${BUCKET}/content/content-bundle.json" \
             --cache-control "no-cache" --content-type "application/json"
-          aws s3 cp content-bundle.json "s3://${{ vars.CONTENT_BUCKET }}/content/snapshots/content-bundle-${STAMP}-${GITHUB_SHA::7}.json" \
+          aws s3 cp content-bundle.json "s3://${BUCKET}/content/snapshots/content-bundle-${STAMP}-${GITHUB_SHA::7}.json" \
             --cache-control "public, max-age=31536000, immutable" --content-type "application/json"
 
       - name: Invalidate CDN path
+        env:
+          DIST: ${{ matrix.target.dist }}
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id "${{ vars.CLOUDFRONT_DIST_ID }}" \
+            --distribution-id "${DIST}" \
             --paths "/content/content-bundle.json" \
             --query "Invalidation.Id" --output text

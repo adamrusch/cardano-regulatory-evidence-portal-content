@@ -10,19 +10,23 @@ name: Build and publish
 # long-lived credentials are stored in this repository.
 #
 # Targets. During the move of the site to its new AWS account the bundle is
-# published to more than one target (a dual-write; see the main repo's
-# epoch-ops/TODOS_Phase2.md, decision D9). Repository variable:
-#   PUBLISH_TARGETS  JSON array, one object per target:
-#     [{"name": "phase1", "role": "<role arn>", "bucket": "<bucket>",
-#       "dist": "<distribution id>", "region": "us-east-1", "required": true},
-#      {"name": "verifycardano", ..., "required": false}]
-#   A required target's failure fails the run; an optional target's failure
-#   is shown on the run but does not fail it.
-# When PUBLISH_TARGETS is unset, the original single-target variables are
-# used as one required target, exactly as before:
-#   AWS_ROLE_ARN         the publish role
-#   CONTENT_BUCKET       the site bucket name
-#   CLOUDFRONT_DIST_ID   the distribution id
+# published to both accounts (a dual-write; see the main repo's
+# epoch-ops/TODOS_Phase2.md, decision D9). Each target is its own job that
+# calls .github/actions/publish-bundle. The required target's failure fails
+# the run; the optional target has continue-on-error, so its failure is
+# shown on the run but does not fail it. At cutover the continue-on-error
+# moves to the phase-1 job; at the end the phase-1 job is deleted.
+#
+# Repository variables:
+#   phase-1 site (account 409410541898), required:
+#     AWS_ROLE_ARN                      the publish role
+#     CONTENT_BUCKET                    the site bucket name
+#     CLOUDFRONT_DIST_ID                the distribution id
+#   VerifyCardano site (account 527490776074), optional; the job is skipped
+#   until VERIFYCARDANO_CONTENT_BUCKET is set:
+#     VERIFYCARDANO_ROLE_ARN            ContentPublishRoleArn stack output
+#     VERIFYCARDANO_CONTENT_BUCKET      verifycardano-site-527490776074
+#     VERIFYCARDANO_CLOUDFRONT_DIST_ID  DistributionId stack output
 
 on:
   push:
@@ -71,73 +75,36 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  targets:
+  publish-phase1:
+    needs: build
     runs-on: ubuntu-latest
-    outputs:
-      list: ${{ steps.targets.outputs.list }}
     steps:
-      - name: Resolve publish targets
-        id: targets
-        env:
-          PUBLISH_TARGETS: ${{ vars.PUBLISH_TARGETS }}
-          LEGACY_ROLE: ${{ vars.AWS_ROLE_ARN }}
-          LEGACY_BUCKET: ${{ vars.CONTENT_BUCKET }}
-          LEGACY_DIST: ${{ vars.CLOUDFRONT_DIST_ID }}
-        run: |
-          if [ -n "$PUBLISH_TARGETS" ]; then
-            list=$(printf '%s' "$PUBLISH_TARGETS" | jq -c '.')
-          else
-            list=$(jq -cn --arg role "$LEGACY_ROLE" --arg bucket "$LEGACY_BUCKET" --arg dist "$LEGACY_DIST" \
-              '[{name: "default", role: $role, bucket: $bucket, dist: $dist, region: "us-east-1", required: true}]')
-          fi
-          # Every target needs role, bucket and dist; exactly one is required.
-          printf '%s' "$list" | jq -e 'type == "array" and length > 0
-            and all(.[]; (.role|type) == "string" and (.role|length) > 0
-                         and (.bucket|type) == "string" and (.bucket|length) > 0
-                         and (.dist|type) == "string" and (.dist|length) > 0)
-            and ([.[] | select(.required == true)] | length) == 1' >/dev/null \
-            || { echo "::error::PUBLISH_TARGETS must be a non-empty array of {name, role, bucket, dist, region, required} with exactly one required target"; exit 1; }
-          list=$(printf '%s' "$list" | jq -c 'map(.region //= "us-east-1")')
-          echo "list=$list" >> "$GITHUB_OUTPUT"
-          printf '%s' "$list" | jq -r '.[] | "target \(.name): bucket \(.bucket), dist \(.dist), \(.region), required=\(.required)"'
+      # Checkout only to make the local publish-bundle action available.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
 
-  publish:
-    needs: [build, targets]
+      - uses: ./.github/actions/publish-bundle
+        with:
+          role: ${{ vars.AWS_ROLE_ARN }}
+          bucket: ${{ vars.CONTENT_BUCKET }}
+          dist: ${{ vars.CLOUDFRONT_DIST_ID }}
+
+  publish-verifycardano:
+    needs: build
+    if: vars.VERIFYCARDANO_CONTENT_BUCKET != ''
+    # Optional during the dual-write: a failure here is reported but does
+    # not fail the run.
+    continue-on-error: true
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        target: ${{ fromJSON(needs.targets.outputs.list) }}
-    # An optional target's failure is reported on its leg but does not fail
-    # the workflow; the required target's failure does.
-    continue-on-error: ${{ !matrix.target.required }}
-    name: publish (${{ matrix.target.name }})
     steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+      # Checkout only to make the local publish-bundle action available.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
         with:
-          name: content-bundle
+          persist-credentials: false
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c  # v4
+      - uses: ./.github/actions/publish-bundle
         with:
-          role-to-assume: ${{ matrix.target.role }}
-          aws-region: ${{ matrix.target.region }}
-
-      - name: Publish bundle (latest and dated snapshot)
-        env:
-          BUCKET: ${{ matrix.target.bucket }}
-        run: |
-          STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-          aws s3 cp content-bundle.json "s3://${BUCKET}/content/content-bundle.json" \
-            --cache-control "no-cache" --content-type "application/json"
-          aws s3 cp content-bundle.json "s3://${BUCKET}/content/snapshots/content-bundle-${STAMP}-${GITHUB_SHA::7}.json" \
-            --cache-control "public, max-age=31536000, immutable" --content-type "application/json"
-
-      - name: Invalidate CDN path
-        env:
-          DIST: ${{ matrix.target.dist }}
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id "${DIST}" \
-            --paths "/content/content-bundle.json" \
-            --query "Invalidation.Id" --output text
+          role: ${{ vars.VERIFYCARDANO_ROLE_ARN }}
+          bucket: ${{ vars.VERIFYCARDANO_CONTENT_BUCKET }}
+          dist: ${{ vars.VERIFYCARDANO_CLOUDFRONT_DIST_ID }}

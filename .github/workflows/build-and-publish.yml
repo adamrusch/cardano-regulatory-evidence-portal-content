@@ -14,16 +14,17 @@ name: Build and publish
 # epoch-ops/TODOS_Phase2.md, decision D9). Each target is its own job that
 # calls .github/actions/publish-bundle. The required target's failure fails
 # the run; the optional target has continue-on-error, so its failure is
-# shown on the run but does not fail it. At cutover the continue-on-error
-# moves to the phase-1 job; at the end the phase-1 job is deleted.
+# shown on the run but does not fail it. Since the cutover (2026-11-07) the
+# VerifyCardano target (account 527490776074) is required and the phase-1
+# target (account 409410541898) is optional. The phase-1 job is deleted
+# after the soak.
 #
 # Repository variables:
-#   phase-1 site (account 409410541898), required:
+#   phase-1 site (account 409410541898), optional:
 #     AWS_ROLE_ARN                      the publish role
 #     CONTENT_BUCKET                    the site bucket name
 #     CLOUDFRONT_DIST_ID                the distribution id
-#   VerifyCardano site (account 527490776074), optional; the job is skipped
-#   until VERIFYCARDANO_CONTENT_BUCKET is set:
+#   VerifyCardano site (account 527490776074), required:
 #     VERIFYCARDANO_ROLE_ARN            ContentPublishRoleArn stack output
 #     VERIFYCARDANO_CONTENT_BUCKET      verifycardano-site-527490776074
 #     VERIFYCARDANO_CLOUDFRONT_DIST_ID  DistributionId stack output
@@ -77,6 +78,10 @@ jobs:
 
   publish-phase1:
     needs: build
+    # Optional after the cutover (2026-11-07): the site is served from the
+    # new account. A failure here is reported but does not fail the run.
+    # This job is deleted after the soak (main repo epoch-ops/TODOS_Phase2.md step 8).
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       # Checkout only to make the local publish-bundle action available.
@@ -93,9 +98,6 @@ jobs:
   publish-verifycardano:
     needs: build
     if: vars.VERIFYCARDANO_CONTENT_BUCKET != ''
-    # Optional during the dual-write: a failure here is reported but does
-    # not fail the run.
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       # Checkout only to make the local publish-bundle action available.

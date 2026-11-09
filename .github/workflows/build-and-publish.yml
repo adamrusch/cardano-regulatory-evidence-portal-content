@@ -1,33 +1,22 @@
 name: Build and publish
 
-# On every merge to main: build content-bundle.json once and publish it to
-# each site target's content origin, then invalidate each target's CDN path.
+# On every merge to main: build content-bundle.json, publish it to the
+# VerifyCardano site's content origin, then invalidate its CDN path.
 # The site fetches the bundle at page load, so a merged change is visible
 # within minutes without any site rebuild.
 #
-# Auth is OIDC-federated: for each target the workflow assumes an AWS role
-# scoped to writing the content/ prefix and creating invalidations. No
-# long-lived credentials are stored in this repository.
+# Auth is OIDC-federated: the workflow assumes an AWS role scoped to writing
+# the content/ prefix and creating invalidations. No long-lived credentials
+# are stored in this repository.
 #
-# Targets. During the move of the site to its new AWS account the bundle is
-# published to both accounts (a dual-write; see the main repo's
-# epoch-ops/TODOS_Phase2.md, decision D9). Each target is its own job that
-# calls .github/actions/publish-bundle. The required target's failure fails
-# the run; the optional target has continue-on-error, so its failure is
-# shown on the run but does not fail it. Since the cutover (2026-11-07) the
-# VerifyCardano target (account 527490776074) is required and the phase-1
-# target (account 409410541898) is optional. The phase-1 job is deleted
-# after the soak.
+# The publish job calls .github/actions/publish-bundle and is deliberately
+# unconditional: if a variable below goes missing, the publish fails rather
+# than being skipped.
 #
-# Repository variables:
-#   phase-1 site (account 409410541898), optional:
-#     AWS_ROLE_ARN                      the publish role
-#     CONTENT_BUCKET                    the site bucket name
-#     CLOUDFRONT_DIST_ID                the distribution id
-#   VerifyCardano site (account 527490776074), required:
-#     VERIFYCARDANO_ROLE_ARN            ContentPublishRoleArn stack output
-#     VERIFYCARDANO_CONTENT_BUCKET      verifycardano-site-527490776074
-#     VERIFYCARDANO_CLOUDFRONT_DIST_ID  DistributionId stack output
+# Repository variables (VerifyCardano site, account 527490776074):
+#   VERIFYCARDANO_ROLE_ARN            ContentPublishRoleArn stack output
+#   VERIFYCARDANO_CONTENT_BUCKET      verifycardano-site-527490776074
+#   VERIFYCARDANO_CLOUDFRONT_DIST_ID  DistributionId stack output
 
 on:
   push:
@@ -67,8 +56,7 @@ jobs:
         # publish before it starts if the invariant ever regresses.
         run: node scripts/assert-bundle-tags.mjs
 
-      # Built once and shared, so every target receives byte-identical
-      # bundles (the bundle carries its own generated_at timestamp).
+      # Handed to the publish job as an artifact.
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: content-bundle
@@ -76,28 +64,8 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  publish-phase1:
-    needs: build
-    # Optional after the cutover (2026-11-07): the site is served from the
-    # new account. A failure here is reported but does not fail the run.
-    # This job is deleted after the soak (main repo epoch-ops/TODOS_Phase2.md step 8).
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    steps:
-      # Checkout only to make the local publish-bundle action available.
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
-        with:
-          persist-credentials: false
-
-      - uses: ./.github/actions/publish-bundle
-        with:
-          role: ${{ vars.AWS_ROLE_ARN }}
-          bucket: ${{ vars.CONTENT_BUCKET }}
-          dist: ${{ vars.CLOUDFRONT_DIST_ID }}
-
   publish-verifycardano:
     needs: build
-    if: vars.VERIFYCARDANO_CONTENT_BUCKET != ''
     runs-on: ubuntu-latest
     steps:
       # Checkout only to make the local publish-bundle action available.
